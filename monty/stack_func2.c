@@ -1,72 +1,15 @@
 #include "monty.h"
 /**
- * _swap - swap top of stack y second top stack
- * @stack: pointer to lists for monty stack
- * @line_number: number of line opcode occurs on
+ * _nop - literally does nothing
+ * @stack: pointer to the top of the stack
+ * @line_number: the index of the current line
+ *
  */
-
-void _swap(stack_t **stack, unsigned int line_number)
-{
-	stack_t *runner;
-	int tmp;
-
-	runner = *stack;
-	if (runner == NULL || runner->next == NULL)
-	{
-		fprintf(stderr, "L%d: can't swap, stack too short\n", line_number);
-		exit(EXIT_FAILURE);
-	}
-	tmp = runner->n;
-	runner->n = runner->next->n;
-	runner->next->n = tmp;
-}
-
-/**
- * _add - add top of stack y second top stack
- * @stack: pointer to lists for monty stack
- * @line_number: number of line opcode occurs on
- */
-
-void _add(stack_t **stack, unsigned int line_number)
-{
-	stack_t *tmp = *stack;
-	int sum = 0, i = 0;
-
-	if (tmp == NULL)
-	{
-		fprintf(stderr, "L%d: can't add, stack too short\n", line_number);
-		exit(EXIT_FAILURE);
-	}
-
-	while (tmp)
-	{
-		tmp = tmp->next;
-		i++;
-	}
-
-	if (stack == NULL || (*stack)->next == NULL || i <= 1)
-	{
-		fprintf(stderr, "L%d: can't add, stack too short\n", line_number);
-		exit(EXIT_FAILURE);
-	}
-	sum = (*stack)->next->n + (*stack)->n;
-	_pop(stack, line_number);
-
-	(*stack)->n = sum;
-}
-
-/**
- * _nop - nop top of stack y second top stack
- * @stack: pointer to lists for monty stack
- * @line_number: number of line opcode occurs on
- */
-
 void _nop(__attribute__ ((unused))stack_t **stack,
-		__attribute__ ((unused)) unsigned int line_number)
+	  __attribute__ ((unused))unsigned int line_number)
 {
 	;
 }
-
 /**
  * _pchar - prints the ASCII value of a number
  * @stack: pointer to the top of the stack
@@ -75,40 +18,70 @@ void _nop(__attribute__ ((unused))stack_t **stack,
  */
 void _pchar(stack_t **stack, unsigned int line_number)
 {
+	stack_t *runner;
 	int val;
 
-	if (stack == NULL || *stack == NULL)
+	if (*stack == NULL)
 	{
-		fprintf(stderr, "L%d: can't pchar, stack empty\n", line_number);
-		free(var_global.buffer);
-		fclose(var_global.file);
-		free_dlistint(*stack);
-		exit(EXIT_FAILURE);
+		printf("L%d: can't pchar, stack empty\n", line_number);
+		error_exit(stack);
 	}
 
-	val = (*stack)->n;
-	if (val > 127 || val < 0)
+	runner = *stack;
+	val = runner->n;
+
+	if (!isprint(val))
 	{
-		fprintf(stderr, "L%d: can't pchar, value out of range\n", line_number);
-		free(var_global.buffer);
-		fclose(var_global.file);
-		free_dlistint(*stack);
-		exit(EXIT_FAILURE);
+		printf("L%d: can't pchar, value out of range\n", line_number);
+		error_exit(stack);
 	}
 
 	putchar(val);
 	putchar('\n');
 }
-
 /**
- * _isalpha - checks if int is in alphabet
- * @c: int
- * Return: 1 if yes, 0 if no
+ * _pstr - print string starting a top of stack
+ * @stack: linked list for stack
+ * @line_number: line number opcode occurs on
  */
-int _isalpha(int c)
+void _pstr(stack_t **stack, __attribute__ ((unused))unsigned int line_number)
 {
-	if ((c >= 97 && c <= 122) || (c >= 65 && c <= 90))
-		return (1);
-	else
-		return (0);
+	stack_t *runner;
+	int val;
+
+	runner = *stack;
+
+	while (runner != NULL)
+	{
+		val = runner->n;
+		if (val == 0)
+			break;
+		if (!isprint(val))
+		{
+			break;
+		}
+		putchar(val);
+		runner = runner->next;
+	}
+	putchar('\n');
+}
+/**
+ * _stack - sets sq_flag to stack
+ * @stack: pointer to stack list
+ * @line_number: line opcode occurs on
+ */
+void _stack(__attribute__ ((unused)) stack_t **stack,
+	    __attribute__ ((unused)) unsigned int line_number)
+{
+	sq_flag = 0;
+}
+/**
+ * _queue - sets sq_flag to queue
+ * @stack: pointer to stack list
+ * @line_number: line opcode occurs on
+ */
+void _queue(__attribute__ ((unused))stack_t **stack,
+	    __attribute__ ((unused))unsigned int line_number)
+{
+	sq_flag = 1;
 }
